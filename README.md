@@ -13,7 +13,13 @@ pip install lchat
 
 You will likely need to login via [huggingface_hub](https://huggingface.co/docs/huggingface_hub/quick-start#authentication).
 
-The usage is very simple. Start chatting by typing `lchat`:
+The usage is very simple, to enter the chat prompt run:
+
+```
+python -m lchat
+```
+
+The arguments that can be passed to lchat are as follows:
 
 ```
 usage: lchat [-h] [-p PROMPT] [-m MODEL] [-l]
@@ -28,3 +34,20 @@ options:
                         Hugging Face model to use.
   -l, --list            List default prompts.
 ```
+
+- To quit from the chat prompt, type `q` or `quit`.
+- To erase all message history type `c` or `clear`.
+- To show the help menu, type `h` or `help`.
+
+Chats are not saved between sessions.
+
+The `>>>` prompt is the prompt that awaits your input.
+The `['.'] ... ` prompt is the LLM response.
+
+## License
+
+This project is licensed under the GNU GPL v3 license which can be found [here](LICENSE).
+
+## Contributing
+
+Issues and pull requests welcome!
