@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-p",
         "--prompt",
-        default="default",
+        default="",
         type=str,
         help="Type of prompt to use. '' for none, 'email' for email.",
     )

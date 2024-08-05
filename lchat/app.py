@@ -70,11 +70,6 @@ def get_prompt_dict() -> dict:
                 " and avoid using American phrases.\n"
                 "Here is the email to rephrase:\n"
         ),
-        "default" : (
-                "The output of your response will be recived by a 89"
-                " characeter wide terminal.\n"
-                "Please format your response appropriately."
-        ),
     }
 
 
