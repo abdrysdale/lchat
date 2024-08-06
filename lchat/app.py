@@ -4,6 +4,10 @@
 
 from __future__ import annotations
 
+# Python imports
+import time
+import requests
+
 # Module impots
 from huggingface_hub import InferenceClient
 
@@ -20,6 +24,7 @@ def chat(
     )
 
     is_chatting = True
+    num_failures = 0
     messages = []
     while is_chatting:
 
@@ -37,14 +42,23 @@ def chat(
                 messages = []
                 continue
 
-        messages.append({"role": "user", "content": _input})
+        if num_failures == 0:
+            messages.append({"role": "user", "content": _input})
 
-        print("['.'] ... ")
-        output = client.chat_completion(
-            model = model,
-            messages = messages,
-            max_tokens = 1024,
-        )
+        try:
+            print(f"['.'] {"." * (num_failures % 3) }\r", end="", flush=True)
+            output = client.chat_completion(
+                model = model,
+                messages = messages,
+                max_tokens = 1024,
+            )
+            num_failures = 0
+            print()
+        except requests.exceptions.HTTPError:
+            time.sleep(1)
+            num_failures += 1
+            prompt = _input
+            continue
 
         response = []
         if output.choices:
