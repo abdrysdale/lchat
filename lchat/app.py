@@ -6,6 +6,7 @@ from __future__ import annotations
 
 # Python imports
 import time
+
 import requests
 
 # Module impots
@@ -15,6 +16,7 @@ from huggingface_hub import InferenceClient
 def chat(
         model: str = "meta-llama/Meta-Llama-3.1-405B-Instruct",
         prompt: str | None = None,
+        max_retries: int = 100,
 ) -> None:
     """Begin the chat interface."""
     client = InferenceClient(model=model)
@@ -40,24 +42,33 @@ def chat(
                 continue
             if _input in ("c", "clear"):
                 messages = []
+                num_failures = 0
                 continue
 
         if num_failures == 0:
             messages.append({"role": "user", "content": _input})
 
         try:
-            print(f"['.'] {"." * (num_failures % 3) }\r", end="", flush=True)
+            n = num_failures % 4
+            print(f"['_'] {"." * n }{" " * (3 - n)}\r", end="", flush=True)
             output = client.chat_completion(
                 model = model,
                 messages = messages,
                 max_tokens = 1024,
             )
             num_failures = 0
-            print()
+            print("['o']", flush=True)
         except requests.exceptions.HTTPError:
             time.sleep(1)
             num_failures += 1
             prompt = _input
+            if num_failures > max_retries:
+                print(
+                    "['o'] 'I'm sorry the model appears to be overloaded. Try again?'",
+                    flush = True,
+                )
+                prompt = None,
+                del messages[-1]
             continue
 
         response = []
