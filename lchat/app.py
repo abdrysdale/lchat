@@ -27,7 +27,17 @@ def chat(
 
     is_chatting = True
     num_failures = 0
-    messages = []
+    messages = [
+        {
+            "role": "user",
+            "content": (
+                "I am chatting to you via the terminal,"
+                " please format your answers appropriately.\n"
+                "You don't need to acknowledge this instruction,"
+                " just do it."
+            ),
+        },
+    ]
     while is_chatting:
 
         if prompt is not None and prompt:
