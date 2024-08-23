@@ -14,7 +14,7 @@ from huggingface_hub import InferenceClient
 
 
 def chat(
-        model: str = "meta-llama/Meta-Llama-3.1-405B-Instruct",
+        model: str = "meta-llama/Meta-Llama-3.1-70B-Instruct",
         prompt: str | None = None,
         max_retries: int = 100,
 ) -> None:
@@ -77,7 +77,7 @@ def chat(
                     "['o'] 'I'm sorry the model appears to be overloaded. Try again?'",
                     flush = True,
                 )
-                prompt = None,
+                prompt = None
                 del messages[-1]
             continue
 
