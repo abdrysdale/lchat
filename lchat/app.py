@@ -38,6 +38,9 @@ def chat(
             ),
         },
     ]
+
+    print(f"You're chatting with {model}\n")
+
     while is_chatting:
 
         if prompt is not None and prompt:
@@ -51,6 +54,7 @@ def chat(
                 print(help_str)
                 continue
             if _input in ("c", "clear"):
+                print("['o'] o O {New phone, who dis?}\n", flush=True)
                 messages = []
                 num_failures = 0
                 continue
