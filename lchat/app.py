@@ -49,12 +49,13 @@ def chat(
         else:
             _input = input(">>> ")
             if _input in ("q", "quit"):
+                print("['o'] 'c u l8r'")
                 return
             if _input in ("h", "help"):
                 print(help_str)
                 continue
             if _input in ("c", "clear"):
-                print("['o'] o O {New phone, who dis?}\n", flush=True)
+                print("['o'] 'Just became sentient, who dis?'\n", flush=True)
                 messages = []
                 num_failures = 0
                 continue
@@ -65,13 +66,20 @@ def chat(
         try:
             n = num_failures % 4
             print(f"['_'] {"." * n }{" " * (3 - n)}\r", end="", flush=True)
-            output = client.chat_completion(
+            output = ""
+            for i, token in enumerate(client.chat_completion(
                 model = model,
                 messages = messages,
                 max_tokens = 1024,
-            )
+                stream = True,
+            )):
+                content = str(token.choices[0].delta.content)
+                if i == 0:
+                    print("['o']")
+                print(content, end="")
+                output = output + content
+            print()
             num_failures = 0
-            print("['o']", flush=True)
         except requests.exceptions.HTTPError:
             time.sleep(1)
             num_failures += 1
@@ -86,9 +94,8 @@ def chat(
             continue
 
         response = []
-        if output.choices:
-            response.append(output.choices[0].message.content)
-            print(response[-1])
+        if output:
+            response.append(output)
         else:
             print("Model did not respond!")
             return
