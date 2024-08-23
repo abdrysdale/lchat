@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-m",
         "--model",
-        default="meta-llama/Meta-Llama-3.1-405B-Instruct",
+        default="meta-llama/Meta-Llama-3.1-70B-Instruct",
         type=str,
         help="Hugging Face model to use.",
     )
