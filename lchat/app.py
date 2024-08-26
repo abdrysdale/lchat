@@ -23,7 +23,7 @@ def get_input(prompt, multiline=False):
         input_text = sys.stdin.read()
     else:
         input_text = sys.stdin.readline()
-    return input_text
+    return input_text.strip()
 
 def chat(
         model: str = "meta-llama/Meta-Llama-3.1-70B-Instruct",
@@ -67,21 +67,23 @@ def chat(
             prompt = None
         else:
             _input = get_input(input_prompt, multiline=multiline)
-            if _input.strip() in ("q", "quit"):
+            if _input in ("q", "quit"):
                 print("['o'] 'c u l8r'")
                 return
-            if _input.strip() in ("c", "clear"):
+            if _input in ("c", "clear"):
                 print("['o'] 'Just became sentient, who dis?'\n", flush=True)
                 messages = []
                 num_failures = 0
                 continue
-            if _input.strip() == "m":
+            if _input == "m":
                 _input = get_input(input_prompt, multiline=True)
-            if _input.strip() == "M":
+            if _input == "M":
                 multiline = True
                 continue
-            if _input.strip() in ("h", "help"):
+            if _input in ("h", "help"):
                 print(help_str)
+                continue
+            if not _input:
                 continue
 
         if num_failures == 0:
