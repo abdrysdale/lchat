@@ -22,7 +22,9 @@ def chat(
     client = InferenceClient(model=model)
 
     help_str = (
-        "Press q to quit, c to clear chat history or h to display this message."
+        "Press q to quit,"
+        "c to clear chat history"
+        " or h to display this message.\n"
     )
 
     is_chatting = True
@@ -39,7 +41,7 @@ def chat(
         },
     ]
 
-    print(f"You're chatting with {model}\n")
+    print(f"You're chatting with {model}\n\n{help_str}\n")
 
     while is_chatting:
 
@@ -86,11 +88,12 @@ def chat(
             prompt = _input
             if num_failures > max_retries:
                 print(
-                    "['o'] 'I'm sorry the model appears to be overloaded. Try again?'",
+                    "'I'm sorry the model appears to be overloaded. Try again?'",
                     flush = True,
                 )
                 prompt = None
-                del messages[-1]
+                if messages:
+                    del messages[-1]
             continue
 
         response = []
