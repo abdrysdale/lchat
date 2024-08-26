@@ -14,6 +14,17 @@ import requests
 from huggingface_hub import InferenceClient
 
 
+def get_input(prompt, multiline=False):
+    sys.stdin.flush()
+    prompt = f"{prompt} (multiline) :" if multiline else prompt
+    print(prompt, end="", flush=True)
+    if multiline:
+        # Read all input until EOF
+        input_text = sys.stdin.read()
+    else:
+        input_text = sys.stdin.readline()
+    return input_text
+
 def chat(
         model: str = "meta-llama/Meta-Llama-3.1-70B-Instruct",
         prompt: str | None = None,
@@ -24,8 +35,11 @@ def chat(
 
     help_str = (
         "Press q to quit,"
-        "c to clear chat history"
+        " c to clear chat history,"
+        " m for a single multiline input,"
+        " M to toggle a multilien input,"
         " or h to display this message.\n"
+        "Press Ctrl+D on Unix or Ctrl+Z on Windows to send response.\n"
     )
 
     is_chatting = True
@@ -44,23 +58,30 @@ def chat(
 
     print(f"You're chatting with {model}\n\n{help_str}\n")
 
+    multiline = False
+    input_prompt = ">>> "
     while is_chatting:
 
         if prompt is not None and prompt:
             _input = prompt
             prompt = None
         else:
-            _input = input(">>> ")
-            if _input in ("q", "quit"):
+            _input = get_input(input_prompt, multiline=multiline)
+            if _input.strip() in ("q", "quit"):
                 print("['o'] 'c u l8r'")
                 return
-            if _input in ("h", "help"):
-                print(help_str)
-                continue
-            if _input in ("c", "clear"):
+            if _input.strip() in ("c", "clear"):
                 print("['o'] 'Just became sentient, who dis?'\n", flush=True)
                 messages = []
                 num_failures = 0
+                continue
+            if _input.strip() == "m":
+                _input = get_input(input_prompt, multiline=True)
+            if _input.strip() == "M":
+                multiline = True
+                continue
+            if _input.strip() in ("h", "help"):
+                print(help_str)
                 continue
 
         if num_failures == 0:
