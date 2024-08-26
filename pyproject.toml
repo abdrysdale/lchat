@@ -8,6 +8,9 @@ license = "GPL-3.0-or-later"
 repository = "https://github.com/abdrysdale/lchat"
 readme = "README.md"
 
+[tool.poetry.scripts]
+lchat = "lchat.__main__:main"
+
 [tool.poetry.dependencies]
 python = "^3.12"
 huggingface-hub = "^0.24.5"
