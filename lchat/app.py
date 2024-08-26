@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 # Python imports
+import sys
 import time
 
 import requests
@@ -79,7 +80,8 @@ def chat(
                 if i == 0 and num_failures == 0:
                     print("=" * 79 + "\n['o']\n")
                 output = output + content
-                print(output, end="", flush=True)
+                sys.stdout.write(content)
+                sys.stdout.flush()
             print()
             num_failures = 0
         except requests.exceptions.HTTPError:
