@@ -76,10 +76,10 @@ def chat(
                 stream = True,
             )):
                 content = str(token.choices[0].delta.content)
-                if i == 0:
-                    print("['o']")
-                print(content, end="")
+                if i == 0 and num_failures == 0:
+                    print("=" * 79 + "\n['o']\n")
                 output = output + content
+                print(output, end="", flush=True)
             print()
             num_failures = 0
         except requests.exceptions.HTTPError:
