@@ -7,7 +7,7 @@ import sys
 
 from lchat import app
 
-if __name__ == "__main__":
+def main():
 
     #####################
     # Formats arguments #
@@ -55,3 +55,7 @@ if __name__ == "__main__":
     ############
 
     app.chat(model=args.model, prompt=_prompt)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,12 +1,15 @@
 [tool.poetry]
 name = "lchat"
-version = "0.1.4"
+version = "0.1.8"
 description = "Hugging Face inference chat CLI client."
 authors = ["Alex Drysdale <alexander.drysdale@wales.nhs.uk>"]
 homepage = "https://github.com/abdrysdale/lchat"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/abdrysdale/lchat"
 readme = "README.md"
+
+[tool.poetry.scripts]
+lchat = "lchat.__main__:main"
 
 [tool.poetry.dependencies]
 python = "^3.12"

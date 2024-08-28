@@ -6,6 +6,7 @@ from __future__ import annotations
 
 # Python imports
 import unicodedata
+import sys
 import time
 
 import requests
@@ -30,6 +31,17 @@ def replace_non_ascii(input_string: str) -> str:
     ord_limit = 128
     return "".join(c if ord(c) < ord_limit else "_" for c in normalized_string)
 
+def get_input(prompt, multiline=False):
+    sys.stdin.flush()
+    prompt = f"{prompt} (multiline) :" if multiline else prompt
+    print(prompt, end="", flush=True)
+    if multiline:
+        # Read all input until EOF
+        input_text = sys.stdin.read()
+    else:
+        input_text = sys.stdin.readline()
+    return input_text.strip()
+
 def chat(
         model: str = "meta-llama/Meta-Llama-3.1-70B-Instruct",
         prompt: str | None = None,
@@ -39,7 +51,12 @@ def chat(
     client = InferenceClient(model=model)
 
     help_str = (
-        "Press q to quit, c to clear chat history or h to display this message."
+        "Press q to quit,"
+        " c to clear chat history,"
+        " m for a single multiline input,"
+        " M to toggle a multilien input,"
+        " or h to display this message.\n"
+        "Press Ctrl+D on Unix or Ctrl+Z on Windows to send response.\n"
     )
 
     is_chatting = True
@@ -57,25 +74,34 @@ def chat(
         },
     ]
 
-    print(f"You're chatting with {model}\n")
+    print(f"You're chatting with {model}\n\n{help_str}\n")
 
+    multiline = False
+    input_prompt = ">>> "
     while is_chatting:
 
         if prompt is not None and prompt:
             _input = prompt
             prompt = None
         else:
-            _input = input(">>> ")
+            _input = get_input(input_prompt, multiline=multiline)
             if _input in ("q", "quit"):
                 print("['o'] 'c u l8r'")
                 return
-            if _input in ("h", "help"):
-                print(help_str)
-                continue
             if _input in ("c", "clear"):
                 print("['o'] 'Just became sentient, who dis?'\n", flush=True)
                 messages = []
                 num_failures = 0
+                continue
+            if _input == "m":
+                _input = get_input(input_prompt, multiline=True)
+            if _input == "M":
+                multiline = True
+                continue
+            if _input in ("h", "help"):
+                print(help_str)
+                continue
+            if not _input:
                 continue
 
         if num_failures == 0:
@@ -95,7 +121,10 @@ def chat(
                 if i == 0:
                     print("="*79 + "\n['o']\n")
                 print(content, end="")
+
                 output = output + content
+                sys.stdout.write(content)
+                sys.stdout.flush()
             print()
             num_failures = 0
         except (requests.exceptions.HTTPError, TypeError):
@@ -104,11 +133,12 @@ def chat(
             prompt = _input
             if num_failures > max_retries:
                 print(
-                    "['o'] 'I'm sorry the model appears to be overloaded. Try again?'",
+                    "'I'm sorry the model appears to be overloaded. Try again?'",
                     flush = True,
                 )
                 prompt = None
-                del messages[-1]
+                if messages:
+                    del messages[-1]
             continue
 
         response = []
