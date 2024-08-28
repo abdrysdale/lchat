@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 # Python imports
+import unicodedata
 import time
 
 import requests
@@ -12,6 +13,22 @@ import requests
 # Module impots
 from huggingface_hub import InferenceClient
 
+def replace_non_ascii(input_string: str) -> str:
+    """Replace non-ASCII characters with their closest ASCII alternatives.
+
+    Args:
+        input_string (str): The input string that needs character replacement.
+
+    Returns:
+        str: The modified string with non-ASCII characters replaced.
+
+    """
+    # Use unicodedata.normalize() with 'NFD' form to decompose non-ASCII characters
+    normalized_string = unicodedata.normalize("NFD", input_string)
+
+    # Filter out non-ASCII characters
+    ord_limit = 128
+    return "".join(c if ord(c) < ord_limit else "_" for c in normalized_string)
 
 def chat(
         model: str = "meta-llama/Meta-Llama-3.1-70B-Instruct",
@@ -32,7 +49,8 @@ def chat(
             "role": "user",
             "content": (
                 "I am chatting to you via the terminal,"
-                " please format your answers appropriately.\n"
+                " please format your answers appropriately"
+                " and only use ASCII characters.\n"
                 "You don't need to acknowledge this instruction,"
                 " just do it."
             ),
@@ -73,14 +91,14 @@ def chat(
                 max_tokens = 1024,
                 stream = True,
             )):
-                content = str(token.choices[0].delta.content)
+                content = replace_non_ascii(token.choices[0].delta.content)
                 if i == 0:
-                    print("['o']")
+                    print("="*79 + "\n['o']\n")
                 print(content, end="")
                 output = output + content
             print()
             num_failures = 0
-        except requests.exceptions.HTTPError:
+        except (requests.exceptions.HTTPError, TypeError):
             time.sleep(1)
             num_failures += 1
             prompt = _input
