@@ -31,15 +31,14 @@ def replace_non_ascii(input_string: str) -> str:
     ord_limit = 128
     return "".join(c if ord(c) < ord_limit else "_" for c in normalized_string)
 
-def get_input(prompt, multiline=False):
+def get_input(prompt: str, *,  multiline: bool = False) -> str:
+    """Handle the user input and returns."""
     sys.stdin.flush()
-    prompt = f"{prompt} (multiline) :" if multiline else prompt
+    prompt = f"{prompt} (multiline) : " if multiline else prompt
+
     print(prompt, end="", flush=True)
-    if multiline:
-        # Read all input until EOF
-        input_text = sys.stdin.read()
-    else:
-        input_text = sys.stdin.readline()
+    input_text = sys.stdin.read() if multiline else sys.stdin.readline()
+
     return input_text.strip()
 
 def chat(
@@ -120,7 +119,6 @@ def chat(
                 content = replace_non_ascii(token.choices[0].delta.content)
                 if i == 0:
                     print("="*79 + "\n['o']\n")
-                print(content, end="")
 
                 output = output + content
                 sys.stdout.write(content)
