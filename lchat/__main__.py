@@ -2,13 +2,18 @@
 
 # ruff: noqa: T201
 
+# Python imports
 import argparse
+import logging
 import sys
 
+# Local imports
 from lchat import app
 
-def main():
+logger = logging.getLogger(__name__)
 
+def main() -> None:
+    """Parse command line args and initialise chat."""
     #####################
     # Formats arguments #
     #####################
@@ -41,7 +46,17 @@ def main():
         help="List default prompts.",
     )
 
+    parser.add_argument(
+        "--log",
+        default="warning",
+        type=str,
+        help="Log level, can be debug, info, warning, error or critical.",
+    )
+
     args = parser.parse_args()
+
+    log_level = getattr(logging, args.log.upper())
+    logging.basicConfig(level=log_level)
 
     if args.list:
         for k, p in app.get_prompt_dict().items():
@@ -54,7 +69,8 @@ def main():
     # Response #
     ############
 
-    app.chat(model=args.model, prompt=_prompt)
+    llm = app.LLM(model=args.model, prompt=_prompt)
+    llm.chat()
 
 
 if __name__ == "__main__":
