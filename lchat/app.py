@@ -6,7 +6,6 @@ from __future__ import annotations
 import logging
 import platform
 import requests
-import select
 import sys
 import time
 import unicodedata
@@ -53,7 +52,8 @@ class LLM:
             " M to toggle a multilien input,"
             " or h to display this message.\n"
             "Press Ctrl+D on Unix or Ctrl+Z on Windows"
-            " to send a multiline response.\n\n"
+            " to send a multiline response.\n"
+            "Or type EOF on a line of it's own.\n\n"
         )
 
         # Sets up the chat model interface
@@ -107,30 +107,10 @@ class LLM:
                 _input = self.prompt
                 self.prompt = None
             else:
-                logger.debug("No prompt specified, getting from user.")
-                _input = self.get_input()
-                logger.debug("User input read successfully.")
-                if _input in ("q", "quit"):
-                    self.print("['o'] 'c u l8r'\n")
-                    self.is_chatting = False
-                    continue
-                if _input in ("c", "clear"):
-                    self.print(
-                        "['o'] 'Just became sentient, who dis?'\n\n",
-                    )
-                    self.messages = []
-                    self.num_failures = 0
-                    continue
-                if _input == "m":
-                    _input = self.get_input(multiline=True)
-                if _input == "M":
-                    self.multiline = True
-                    continue
-                if _input in ("h", "help"):
-                    self.print(self.help_str)
-                    continue
+                _input = self.process_input()
                 if not _input:
                     continue
+
 
             if self.num_failures == 0:
                 self.messages.append({"role": "user", "content": _input})
@@ -141,23 +121,7 @@ class LLM:
                 )
 
             try:
-                n = self.num_failures % 4
-                self.print(f"['_'] {"." * n }{" " * (3 - n)}\r")
-                output = ""
-                for i, token in enumerate(self.client.chat_completion(
-                        model = self.model,
-                        messages = self.messages,
-                        max_tokens = 1024,
-                        stream = True,
-                )):
-                    content = replace_non_ascii(token.choices[0].delta.content)
-                    if i == 0:
-                        self.print("="*79 + "\n['o']\n")
-
-                    output = output + content
-                    self.print(content)
-                    self.num_failures = 0
-                self.print("\n")
+                output = self.process_response()
             except (requests.exceptions.HTTPError, TypeError):
                 time.sleep(1)
                 self.num_failures += 1
@@ -177,7 +141,72 @@ class LLM:
             else:
                 self.print("Model did not respond!\n")
                 self.is_chatting = False
-                self.messages.append({"role": "assistant", "content": "\n".join(response)})
+                self.messages.append(
+                    {"role": "assistant", "content": "\n".join(response)},
+                )
+
+
+    def process_input(self) -> bool | str:
+        """Process the input return.
+
+        Returns
+                return_val : False if the input should be reobtained.
+
+        """
+        logger.debug("No prompt specified, getting from user.")
+        _input = self.get_input()
+        logger.debug("User input read successfully.")
+
+        if _input in ("q", "quit"):
+            self.print("['o'] 'c u l8r'\n")
+            self.is_chatting = False
+            return False
+
+        if _input in ("c", "clear"):
+            self.print(
+                "['o'] 'Just became sentient, who dis?'\n\n",
+            )
+            self.messages = []
+            self.num_failures = 0
+            return False
+
+        if _input in ("h", "help"):
+            self.print(self.help_str)
+            return False
+
+        if not _input:
+            return False
+
+        if _input == "M":
+            # Toggles multiline from True to False and visa versa
+            self.multiline = bool((self.multiline + 1) % 2)
+            return False
+
+        if _input == "m":
+            _input = self.get_input(multiline=True)
+        return _input
+
+
+    def process_response(self) -> str:
+        """Get a response from the client."""
+        n = self.num_failures % 4
+        self.print(f"['_'] {"." * n }{" " * (3 - n)}\r")
+        output = ""
+        for i, token in enumerate(self.client.chat_completion(
+                model = self.model,
+                messages = self.messages,
+                max_tokens = 1024,
+                stream = True,
+        )):
+            content = replace_non_ascii(token.choices[0].delta.content)
+            if i == 0:
+                self.print("="*79 + "\n['o']\n")
+
+            output = output + content
+            self.print(content)
+            self.num_failures = 0
+        self.print("\n")
+        return output
 
 
     def get_input(self, *,  multiline: bool | None = None) -> str:

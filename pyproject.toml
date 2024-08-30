@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lchat"
-version = "0.2.0"
+version = "0.2.1"
 description = "Hugging Face inference chat CLI client."
 authors = ["Alex Drysdale <alexander.drysdale@wales.nhs.uk>"]
 homepage = "https://github.com/abdrysdale/lchat"
