@@ -3,4 +3,4 @@
 # Python imports
 import importlib.metadata
 
-_version = importlib.metadata.version("lchat")
+__version__ = importlib.metadata.version("lchat")

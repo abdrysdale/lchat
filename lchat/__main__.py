@@ -6,6 +6,7 @@
 import argparse
 import logging
 import sys
+from importlib import metadata
 
 # Local imports
 import lchat
@@ -64,7 +65,10 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.version:
-        print(f"lchat: {lchat.__version__}")
+        print(
+            f"lchat: v{lchat.__version__}\n"
+            f"huggingface_hub: {metadata.version('huggingface_hub')}\n"
+        )
         return True
 
     log_level = getattr(logging, args.log.upper())
