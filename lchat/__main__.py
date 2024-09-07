@@ -8,6 +8,7 @@ import logging
 import sys
 
 # Local imports
+import lchat
 from lchat import app
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,13 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "-v",
+        "--version",
+        action="store_true",
+        help="Version information.",
+    )
+
+    parser.add_argument(
         "--log",
         default="warning",
         type=str,
@@ -54,6 +62,10 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+
+    if args.version:
+        print(f"lchat: {lchat.__version__}")
+        return True
 
     log_level = getattr(logging, args.log.upper())
     logging.basicConfig(level=log_level)
@@ -71,6 +83,7 @@ def main() -> None:
 
     llm = app.LLM(model=args.model, prompt=_prompt)
     llm.chat()
+    return True
 
 
 if __name__ == "__main__":
